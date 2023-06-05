@@ -6,8 +6,10 @@
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
+// Header guards to avoid multiple inclusion
 #pragma once
 
+// Including necessary header files
 #include "../base/assert_defs.h"
 #include "../base/type_traits_fwd.h"
 #include "../base/functors.h"
@@ -18,40 +20,52 @@
 #include <type_traits>
 #include <iterator>
 
+// Define a namespace to avoid naming conflicts
 namespace tc {
 	namespace begin_end_adl {
+        // Define a new type named 'begin_end_tag' using the macro DEFINE_ADL_TAG_TYPE
 		DEFINE_ADL_TAG_TYPE(begin_end_tag);
 	}
 
+	// Begin function: Get the beginning iterator of a given range
+	// The function template parameter is the range type Rng
+	// The function argument is an instance of this range type
 	template<typename Rng>
 	[[nodiscard]] constexpr auto begin(Rng&& rng) return_decltype_MAYTHROW(
 		// Rng has member begin
-		std::forward<Rng>(rng).begin()
+		std::forward<Rng>(rng).begin() // returns the beginning iterator of the range
 	)
 
+    // Similar to above, but uses a free function begin found by tag
 	template<typename Rng>
 	[[nodiscard]] constexpr auto begin(Rng&& rng) return_decltype_MAYTHROW(
 		// Rng has free begin found by tag
 		begin(begin_end_adl::begin_end_tag, std::forward<Rng>(rng))
 	)
 
+    // End function: Get the ending iterator of a given range
 	template<typename Rng>
 	[[nodiscard]] constexpr auto end(Rng&& rng) return_decltype_MAYTHROW(
 		// Rng has member end
-		std::forward<Rng>(rng).end()
+		std::forward<Rng>(rng).end() // returns the ending iterator of the range
 	)
 
+    // Similar to above, but uses a free function end found by tag
 	template<typename Rng>
 	[[nodiscard]] constexpr auto end(Rng&& rng) return_decltype_MAYTHROW(
 		// Rng has free end found by tag
 		end(begin_end_adl::begin_end_tag, std::forward<Rng>(rng))
 	)
 
+    // iterator_t: type alias for the iterator type of a range
 	template<typename Rng>
 	using iterator_t = decltype(tc::begin(std::declval<Rng&>()));
+
+    // sentinel_t: type alias for the sentinel type of a range
 	template<typename Rng>
 	using sentinel_t = decltype(tc::end(std::declval<Rng&>()));
 
+    // common_range: checks if the iterator and sentinel types of a range are the same
 	template<typename Rng>
 	concept common_range = std::same_as<tc::iterator_t<Rng>, tc::sentinel_t<Rng>>;
 

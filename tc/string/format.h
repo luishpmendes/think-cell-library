@@ -18,6 +18,7 @@
 #include "../range/repeat_n.h"
 #include "value_restrictive.h"
 
+// The following code disables warnings about the use of deprecated declarations when the code is compiled with Clang.
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations" // sprintf is deprecated in Xcode14.1 RC
@@ -31,13 +32,22 @@ namespace tc {
 	///////////////
 	// Wrapper to print integers as decimal
 
-	namespace integral_as_padded_dec_adl {
-		template< typename T, std::size_t N>
+    // Begin namespace `integral_as_padded_dec_adl`
+    // This namespace includes templates for padding decimal integers.
+ 	namespace integral_as_padded_dec_adl {
+        // Template for a struct `integral_as_padded_dec_impl`, which prints integers as decimal.
+        // Uses template specialization to differentiate between base case and recursive case.
+		
+        // Recursive case
+        template< typename T, std::size_t N>
 		struct integral_as_padded_dec_impl;
 
+        // Base case
 		template< typename T>
 		struct integral_as_padded_dec_impl<T,1>;
 
+        // Recursive case is defined here.
+        // This struct is used to print an integer as a padded decimal by recursively calling itself.
 		template< typename T, std::size_t N>
 		struct [[nodiscard]] integral_as_padded_dec_impl : protected integral_as_padded_dec_impl<T,N-1> {
 			friend auto range_output_t_impl(integral_as_padded_dec_impl const&) -> tc::type::list<tc::char_ascii>; // declaration only
@@ -59,7 +69,9 @@ namespace tc {
 			constexpr bool empty() const& noexcept { return false; }
 		};
 
-		template< typename T>
+        // Base case is defined here.
+        // The struct provides a definition for a wrapper to print a single-digit integer as a padded decimal.
+ 		template< typename T>
 		struct [[nodiscard]] integral_as_padded_dec_impl<T,1> {
 			friend auto range_output_t_impl(integral_as_padded_dec_impl const&) -> tc::type::list<tc::char_ascii>; // declaration only
 			T m_n;
@@ -74,7 +86,9 @@ namespace tc {
 			constexpr bool empty() const& noexcept { return false; }
 		};
 	}
+    // End namespace `integral_as_padded_dec_adl`
 
+    // as_dec is a function that takes an integer and returns a decimal representation of it.
 	template< tc::actual_integer T>
 	constexpr auto as_dec(T t) return_ctor_noexcept(
 		TC_FWD(integral_as_padded_dec_adl::integral_as_padded_dec_impl<T, 1>),
@@ -99,6 +113,7 @@ namespace tc {
 
 	TC_DEFINE_ENUM(casing, BOOST_PP_EMPTY(), (uppercase)(lowercase));
 
+    // The following set of functions and structures define a wrapper to print integers as hexadecimal.
 	namespace as_hex_adl {
 		///////////////
 		// Wrapper to print integers as hex
@@ -136,6 +151,7 @@ namespace tc {
 	}
 	using as_hex_adl::as_hex_impl;
 
+    // The as_hex function takes an integer and returns a hexadecimal representation of it.
 	template< unsigned int nWidth, tc::casing c=tc::uppercase, typename T >
 	constexpr auto as_hex(T const& t) return_ctor_noexcept(
 		TC_FWD(as_hex_impl<T, nWidth, c>),
@@ -158,6 +174,7 @@ namespace tc {
 	//////////////////////////////////////////////////
 	// conversion from string to number
 
+    // The following functions convert strings to numbers, checking for overflow or underflow and throwing exceptions when necessary.
 	template< typename T, typename Rng >
 	auto unsigned_integer_from_string_head(Rng&& rng) noexcept {
 		auto pairnit=std::make_pair(tc::explicit_cast<T>(0),tc::begin(rng));
